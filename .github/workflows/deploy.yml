@@ -1,0 +1,41 @@
+name: "Terraform CI/CD Pipeline"
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Initialize Terraform
+        run: terraform init 
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check 
+
+      - name: Validate Terraform
+        run: terraform validate 
+
+      - name: Plan Terraform deployment
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color
+
+      - name: Appply Terraform deployment
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+      - name: Verify Docker deployment
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker ps == filter "name=module13-nginx"
