@@ -38,4 +38,4 @@ jobs:
 
       - name: Verify Docker deployment
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: docker ps ==filter "name=module13-nginx"
+        run: docker ps --filter "name=module13-nginx"
